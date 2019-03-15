@@ -28,7 +28,7 @@ export class CardcontainerComponent {
   private readonly DISPLAY_TIME = 6000;
 
   // Whether or not to display the debugger.
-  private useDebugger = environment.useDebugger;
+  useDebugger = environment.useDebugger;
 
   @ViewChildren(CardComponent) containedCards!: QueryList<CardComponent>;
 
