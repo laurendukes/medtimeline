@@ -310,7 +310,7 @@ export class FhirHttpService extends FhirService {
       ],
       'patient': {'display': 'Smart, Joe', 'reference': 'Patient/4342010'},
       'period': {
-        'start': '2018-10-01T06:00:00.000Z',
+        'start': '2018-08-01T06:00:00.000Z',
         'end': '2018-10-10T06:00:00.000Z'
       },
       'resourceType': 'Encounter',
