@@ -9051,10 +9051,7 @@ var TimelineControllerComponent = /** @class */ (function () {
                 // earliest encounter that had days that fell inside the app
                 // timespan, in UTC.
                 _this.earliestAvailableDate =
-                    moment__WEBPACK_IMPORTED_MODULE_2__(encounters[0]
-                        .period.start.startOf('day')
-                        .toUTC()
-                        .toJSDate());
+                    moment__WEBPACK_IMPORTED_MODULE_2__(src_constants__WEBPACK_IMPORTED_MODULE_4__["APP_TIMESPAN"].start.toUTC().toJSDate());
                 // We have to store everything as an ISO string because if we
                 // store as objects the set membership check doesn't work.
                 _this.daysCoveredByAnEncounter = new Set(Object(_date_utils__WEBPACK_IMPORTED_MODULE_5__["getDaysForIntervalSet"])(encounters.map(function (x) { return x.period; }))

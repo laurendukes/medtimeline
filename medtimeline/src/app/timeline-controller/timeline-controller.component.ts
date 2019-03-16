@@ -89,10 +89,7 @@ export class TimelineControllerComponent implements OnInit {
                 // earliest encounter that had days that fell inside the app
                 // timespan, in UTC.
                 this.earliestAvailableDate =
-                    moment(encounters[0]
-                               .period.start.startOf('day')
-                               .toUTC()
-                               .toJSDate());
+                    moment(APP_TIMESPAN.start.toUTC().toJSDate());
 
                 // We have to store everything as an ISO string because if we
                 // store as objects the set membership check doesn't work.
