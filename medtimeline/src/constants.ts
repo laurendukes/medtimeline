@@ -6,7 +6,7 @@
 import {DateTime, Duration, Interval} from 'luxon';
 /** The period of time this app will search for patient encounters in.  */
 export const APP_TIMESPAN = Interval.fromDateTimes(
-    DateTime.utc().minus(Duration.fromObject({months: 6})), DateTime.utc());
+    DateTime.utc().minus(Duration.fromObject({months: 18})), DateTime.utc());
 
 /** Constants used for FHIR resource types. */
 export enum FhirResourceType {
