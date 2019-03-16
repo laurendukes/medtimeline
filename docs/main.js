@@ -8943,7 +8943,7 @@ module.exports = ".datePicker {\n  background-color: white;\n  padding-top: 20px
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"datePicker\" fxLayout=\"row\" fxLayoutGap=\"10px\" class=\"mat-h2\">\n  <input type=\"button\" class=\"mat-raised-button\" ngxDaterangepickerMd [(ngModel)]=\"selected\"\n    [minDate]=\"earliestAvailableDate\" [maxDate]=\"latestAvailableDate\" [linkedCalendars]=\"true\"\n    [isCustomDate]=\"addCustomClass\" (datesUpdated)=\"datesUpdated($event)\" [ranges]=\"ranges\" [alwaysShowCalendars]=\"true\"\n    [keepCalendarOpeningWithRange]=\"true\" matTooltip=\"Change date range\" />\n  <mat-icon *ngIf=\"encounterError\" class=\"errorIcon\"\n    matTooltip=\"Unable to retrieve hospital visit dates for this patient. You can select any time period in the past six months.\">\n    warning</mat-icon>\n</div>"
+module.exports = "<div class=\"datePicker\" fxLayout=\"row\" fxLayoutGap=\"10px\" class=\"mat-h2\">\n  <input type=\"button\" class=\"mat-raised-button\" ngxDaterangepickerMd [(ngModel)]=\"selected\" [linkedCalendars]=\"true\"\n    [isCustomDate]=\"addCustomClass\" (datesUpdated)=\"datesUpdated($event)\" [ranges]=\"ranges\" [alwaysShowCalendars]=\"true\"\n    [keepCalendarOpeningWithRange]=\"true\" matTooltip=\"Change date range\" />\n  <mat-icon *ngIf=\"encounterError\" class=\"errorIcon\"\n    matTooltip=\"Unable to retrieve hospital visit dates for this patient. You can select any time period in the past six months.\">\n    warning</mat-icon>\n</div>\n"
 
 /***/ }),
 
