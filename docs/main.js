@@ -4578,13 +4578,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../constants */ "./src/constants.ts");
 /* harmony import */ var _clinicalconcepts_loinc_code__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./clinicalconcepts/loinc-code */ "./src/app/clinicalconcepts/loinc-code.ts");
 /* harmony import */ var _clinicalconcepts_resource_code_manager__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./clinicalconcepts/resource-code-manager */ "./src/app/clinicalconcepts/resource-code-manager.ts");
-/* harmony import */ var _debugger_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./debugger.service */ "./src/app/debugger.service.ts");
-/* harmony import */ var _fhir_data_classes_encounter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./fhir-data-classes/encounter */ "./src/app/fhir-data-classes/encounter.ts");
-/* harmony import */ var _fhir_data_classes_medication_administration__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./fhir-data-classes/medication-administration */ "./src/app/fhir-data-classes/medication-administration.ts");
-/* harmony import */ var _fhir_data_classes_medication_order__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./fhir-data-classes/medication-order */ "./src/app/fhir-data-classes/medication-order.ts");
-/* harmony import */ var _fhir_data_classes_observation__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./fhir-data-classes/observation */ "./src/app/fhir-data-classes/observation.ts");
-/* harmony import */ var _fhir_service__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./fhir.service */ "./src/app/fhir.service.ts");
-/* harmony import */ var _smart_on_fhir_client__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./smart-on-fhir-client */ "./src/app/smart-on-fhir-client.ts");
+/* harmony import */ var _clinicalconcepts_rx_norm__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./clinicalconcepts/rx-norm */ "./src/app/clinicalconcepts/rx-norm.ts");
+/* harmony import */ var _debugger_service__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./debugger.service */ "./src/app/debugger.service.ts");
+/* harmony import */ var _fhir_data_classes_encounter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./fhir-data-classes/encounter */ "./src/app/fhir-data-classes/encounter.ts");
+/* harmony import */ var _fhir_data_classes_medication_administration__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./fhir-data-classes/medication-administration */ "./src/app/fhir-data-classes/medication-administration.ts");
+/* harmony import */ var _fhir_data_classes_medication_order__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./fhir-data-classes/medication-order */ "./src/app/fhir-data-classes/medication-order.ts");
+/* harmony import */ var _fhir_data_classes_observation__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./fhir-data-classes/observation */ "./src/app/fhir-data-classes/observation.ts");
+/* harmony import */ var _fhir_service__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./fhir.service */ "./src/app/fhir.service.ts");
+/* harmony import */ var _smart_on_fhir_client__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./smart-on-fhir-client */ "./src/app/smart-on-fhir-client.ts");
 // Copyright 2018 Verily Life Sciences Inc.
 //
 // Use of this source code is governed by a BSD-style
@@ -4614,6 +4615,7 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 var __param = (undefined && undefined.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+
 
 
 
@@ -4671,12 +4673,12 @@ var FhirHttpService = /** @class */ (function (_super) {
                 .then(function (results) {
                 return results
                     .map(function (result) {
-                    return new _fhir_data_classes_observation__WEBPACK_IMPORTED_MODULE_9__["Observation"](result);
+                    return new _fhir_data_classes_observation__WEBPACK_IMPORTED_MODULE_10__["Observation"](result);
                 })
                     // TODO(b/126775896): Determine which statuses to
                     // filter out.
                     .filter(function (result) { return result.status !==
-                    _fhir_data_classes_observation__WEBPACK_IMPORTED_MODULE_9__["ObservationStatus"].EnteredInError; });
+                    _fhir_data_classes_observation__WEBPACK_IMPORTED_MODULE_10__["ObservationStatus"].EnteredInError; });
             }, 
             // Do not return any Observations for this code if one of
             // the Observation constructions throws an error.
@@ -4694,7 +4696,41 @@ var FhirHttpService = /** @class */ (function (_super) {
      *     query for.
      */
     FhirHttpService.prototype.getMedicationAdministrationsWithCode = function (code, dateRange, limitCount) {
-        return Promise.resolve([]);
+        var _this = this;
+        var queryParams = {
+            type: _constants__WEBPACK_IMPORTED_MODULE_2__["FhirResourceType"].MedicationAdministration,
+            query: {
+                effectivetime: {
+                    $and: [
+                        GREATER_OR_EQUAL + dateRange.start.toISO(),
+                        LESS_OR_EQUAL + dateRange.end.toISO()
+                    ]
+                },
+                medication: {
+                    code: _clinicalconcepts_rx_norm__WEBPACK_IMPORTED_MODULE_5__["RxNormCode"].CODING_STRING + '|' + code.codeString,
+                }
+            }
+        };
+        if (limitCount) {
+            queryParams.query['_count'] = limitCount;
+        }
+        return this.smartApiPromise.then(function (smartApi) { return smartApi.patient.api.fetchAll(queryParams)
+            .then(function (results) { return results.map(function (result) {
+            try {
+                return new _fhir_data_classes_medication_administration__WEBPACK_IMPORTED_MODULE_8__["MedicationAdministration"](result);
+            }
+            catch (e) {
+                _this.debugService.logError(e);
+                throw e;
+            }
+        }); }, 
+        // Do not return any MedicationAdministrations for
+        // this code if one of the MedicationAdministration
+        // constructions throws an error.
+        function (rejection) {
+            _this.debugService.logError(rejection);
+            throw rejection;
+        }); });
     };
     /**
      * Gets order for specified external id.
@@ -4706,7 +4742,7 @@ var FhirHttpService = /** @class */ (function (_super) {
             return smartApi.patient.api
                 .read({ type: _constants__WEBPACK_IMPORTED_MODULE_2__["FhirResourceType"].MedicationOrder, 'id': id })
                 .then(function (result) {
-                return new _fhir_data_classes_medication_order__WEBPACK_IMPORTED_MODULE_8__["MedicationOrder"](result.data);
+                return new _fhir_data_classes_medication_order__WEBPACK_IMPORTED_MODULE_9__["MedicationOrder"](result.data);
             }, 
             // Do not return any MedicationOrders for
             // this code if one of the MedicationOrder
@@ -4732,7 +4768,7 @@ var FhirHttpService = /** @class */ (function (_super) {
         return this.smartApiPromise.then(function (smartApi) { return smartApi.patient.api.fetchAll(queryParams)
             .then(function (results) {
             results.map(function (result) {
-                return new _fhir_data_classes_medication_administration__WEBPACK_IMPORTED_MODULE_7__["MedicationAdministration"](result);
+                return new _fhir_data_classes_medication_administration__WEBPACK_IMPORTED_MODULE_8__["MedicationAdministration"](result);
             });
         }, 
         // Do not return any MedicationOrders for
@@ -4765,7 +4801,7 @@ var FhirHttpService = /** @class */ (function (_super) {
             results =
                 results
                     .map(function (result) {
-                    return new _fhir_data_classes_encounter__WEBPACK_IMPORTED_MODULE_6__["Encounter"](result);
+                    return new _fhir_data_classes_encounter__WEBPACK_IMPORTED_MODULE_7__["Encounter"](result);
                 })
                     .filter(function (encounter) {
                     return dateRange.intersection(encounter.period) !== null;
@@ -4835,11 +4871,11 @@ var FhirHttpService = /** @class */ (function (_super) {
     };
     FhirHttpService = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])(),
-        __param(1, Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Inject"])(_smart_on_fhir_client__WEBPACK_IMPORTED_MODULE_11__["SMART_ON_FHIR_CLIENT"])),
-        __metadata("design:paramtypes", [_debugger_service__WEBPACK_IMPORTED_MODULE_5__["DebuggerService"], Object, _angular_platform_browser__WEBPACK_IMPORTED_MODULE_1__["DomSanitizer"]])
+        __param(1, Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Inject"])(_smart_on_fhir_client__WEBPACK_IMPORTED_MODULE_12__["SMART_ON_FHIR_CLIENT"])),
+        __metadata("design:paramtypes", [_debugger_service__WEBPACK_IMPORTED_MODULE_6__["DebuggerService"], Object, _angular_platform_browser__WEBPACK_IMPORTED_MODULE_1__["DomSanitizer"]])
     ], FhirHttpService);
     return FhirHttpService;
-}(_fhir_service__WEBPACK_IMPORTED_MODULE_10__["FhirService"]));
+}(_fhir_service__WEBPACK_IMPORTED_MODULE_11__["FhirService"]));
 
 
 

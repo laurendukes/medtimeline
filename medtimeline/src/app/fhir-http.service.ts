@@ -106,7 +106,43 @@ export class FhirHttpService extends FhirService {
   getMedicationAdministrationsWithCode(
       code: RxNormCode, dateRange: Interval,
       limitCount?: number): Promise<MedicationAdministration[]> {
-    return Promise.resolve([]);
+    const queryParams = {
+      type: FhirResourceType.MedicationAdministration,
+      query: {
+        effectivetime: {
+          $and: [
+            GREATER_OR_EQUAL + dateRange.start.toISO(),
+            LESS_OR_EQUAL + dateRange.end.toISO()
+          ]
+        },
+        medication: {
+          code: RxNormCode.CODING_STRING + '|' + code.codeString,
+        }
+      }
+    };
+
+    if (limitCount) {
+      queryParams.query['_count'] = limitCount;
+    }
+
+    return this.smartApiPromise.then(
+        smartApi => smartApi.patient.api.fetchAll(queryParams)
+                        .then(
+                            (results: any[]) => results.map(result => {
+                              try {
+                                return new MedicationAdministration(result);
+                              } catch (e) {
+                                this.debugService.logError(e);
+                                throw e;
+                              }
+                            }),
+                            // Do not return any MedicationAdministrations for
+                            // this code if one of the MedicationAdministration
+                            // constructions throws an error.
+                            rejection => {
+                              this.debugService.logError(rejection);
+                              throw rejection;
+                            }));
   }
 
   /**
